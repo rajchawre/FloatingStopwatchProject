@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+dist/
+installer-output/
+
+# Test output (screenshots and reports from tests\Run-Test.bat)
+tests/test-results/
+
+# Visual Studio / editor files
+.vs/
+*.user
+*.suo
+.vscode/
+
+# Windows
+Thumbs.db
+desktop.ini

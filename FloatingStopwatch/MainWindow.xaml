@@ -1,0 +1,187 @@
+<Window x:Class="FloatingStopwatch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Floating Stopwatch"
+        SizeToContent="WidthAndHeight" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        Topmost="True" ShowInTaskbar="True" ShowActivated="False"
+        SnapsToDevicePixels="True" UseLayoutRounding="True"
+        PreviewKeyDown="Window_PreviewKeyDown" Closing="Window_Closing">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="TextBrush" Color="#FFFFFF"/>
+
+        <Style x:Key="FlatButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Margin" Value="3,0"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="MinWidth" Value="78"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="7,2"/>
+            <Setter Property="Margin" Value="1,0"/>
+            <Setter Property="MinWidth" Value="0"/>
+        </Style>
+
+        <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource FlatButton}">
+            <Setter Property="Background" Value="#33808080"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="MinWidth" Value="0"/>
+        </Style>
+
+        <Style x:Key="HeaderText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Opacity" Value="0.75"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="Card" CornerRadius="14" Background="#D91E1E1E"
+            BorderBrush="#33FFFFFF" BorderThickness="1" Padding="14,8,14,12"
+            MouseLeftButtonDown="Card_MouseLeftButtonDown"
+            ContextMenuOpening="Card_ContextMenuOpening">
+
+        <Border.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Start / Stop" Tag="startstop" Click="Menu_Click"/>
+                <MenuItem Header="Lap / Mark" Tag="lap" Click="Menu_Click"/>
+                <MenuItem Header="Reset to 00:00:00" Tag="reset" Click="Menu_Click"/>
+                <MenuItem Header="Reset and start" Tag="restart" Click="Menu_Click"/>
+                <MenuItem Header="New session" Tag="newsession" Click="Menu_Click"/>
+                <Separator/>
+                <MenuItem Header="Compact mode (timer only)" Tag="compact" IsCheckable="True" Click="Menu_Click"/>
+                <MenuItem Header="Show control buttons" Tag="buttons" IsCheckable="True" Click="Menu_Click"/>
+                <MenuItem Header="Lock position" Tag="lock" IsCheckable="True" Click="Menu_Click"/>
+                <MenuItem Header="Always on top" Tag="top" IsCheckable="True" Click="Menu_Click"/>
+                <Separator/>
+                <MenuItem Header="Lap list..." Tag="laps" Click="Menu_Click"/>
+                <MenuItem Header="Settings..." Tag="settings" Click="Menu_Click"/>
+                <Separator/>
+                <MenuItem Header="Exit" Tag="exit" Click="Menu_Click"/>
+            </ContextMenu>
+        </Border.ContextMenu>
+
+        <Grid>
+            <Grid x:Name="Root">
+                <Grid.LayoutTransform>
+                    <ScaleTransform x:Name="ScaleT" ScaleX="1" ScaleY="1"/>
+                </Grid.LayoutTransform>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Row 0: header -->
+                <Grid x:Name="HeaderRow" Grid.Row="0" Margin="0,0,0,2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Background="Transparent"
+                                Cursor="Hand" ToolTip="Always-on-top indicator (click to toggle)"
+                                MouseLeftButtonDown="Pin_MouseLeftButtonDown">
+                        <Ellipse x:Name="PinDot" Width="9" Height="9" Fill="#3DDC84" Margin="0,0,6,0"/>
+                        <TextBlock x:Name="PinText" Text="ON TOP" Style="{StaticResource HeaderText}"/>
+                        <TextBlock x:Name="ModeText" Text="STOPWATCH" Style="{StaticResource HeaderText}" Margin="14,0,0,0"/>
+                        <TextBlock x:Name="SessionText" Text="" Style="{StaticResource HeaderText}" Margin="14,0,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Style="{StaticResource IconButton}" Content="&#x2630;" ToolTip="Lap list" Click="Laps_Click"/>
+                        <Button Style="{StaticResource IconButton}" Content="&#x2699;" ToolTip="Settings" Click="Settings_Click"/>
+                        <Button Style="{StaticResource IconButton}" Content="&#x2014;" ToolTip="Minimize (Esc)" Click="Minimize_Click"/>
+                        <Button Style="{StaticResource IconButton}" Content="&#x2715;" ToolTip="Close" Click="Close_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Row 1: big timer -->
+                <TextBlock x:Name="TimeText" Grid.Row="1" Text="00:00:00"
+                           FontFamily="Consolas" FontSize="56" FontWeight="Bold"
+                           HorizontalAlignment="Center" Margin="4,0,4,0"
+                           Foreground="{DynamicResource TextBrush}"/>
+
+                <!-- Row 2: last lap summary -->
+                <TextBlock x:Name="LapInfoText" Grid.Row="2" Text="" FontSize="12"
+                           HorizontalAlignment="Center" Margin="0,0,0,6" Opacity="0.85"
+                           Foreground="{DynamicResource TextBrush}" Visibility="Collapsed"/>
+
+                <!-- Row 3: countdown length adjust (countdown mode only) -->
+                <StackPanel x:Name="AdjustPanel" Grid.Row="3" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,0,0,8" Visibility="Collapsed">
+                    <Button Style="{StaticResource SmallButton}" Content="&#x2212;1 min" Tag="-60" Click="Adjust_Click"/>
+                    <Button Style="{StaticResource SmallButton}" Content="&#x2212;10 s" Tag="-10" Click="Adjust_Click"/>
+                    <Button Style="{StaticResource SmallButton}" Content="+10 s" Tag="10" Click="Adjust_Click"/>
+                    <Button Style="{StaticResource SmallButton}" Content="+1 min" Tag="60" Click="Adjust_Click"/>
+                </StackPanel>
+
+                <!-- Row 4: main buttons -->
+                <StackPanel x:Name="ButtonsPanel" Grid.Row="4" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,4,0,0">
+                    <Button x:Name="StartButton" Style="{StaticResource FlatButton}" Content="START"
+                            Background="#2E9E4F" Click="Start_Click"/>
+                    <Button x:Name="StopButton" Style="{StaticResource FlatButton}" Content="STOP"
+                            Background="#D64545" Click="Stop_Click"/>
+                    <Button x:Name="LapButton" Style="{StaticResource FlatButton}" Content="LAP"
+                            Background="#2F7DE1" Click="Lap_Click"/>
+                    <Button x:Name="ResetButton" Style="{StaticResource FlatButton}" Content="RESET"
+                            Background="#F2B01E" Foreground="#202020" Click="Reset_Click"/>
+                </StackPanel>
+
+                <!-- Row 5: secondary buttons -->
+                <StackPanel x:Name="ExtraPanel" Grid.Row="5" Orientation="Horizontal"
+                            HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button Style="{StaticResource SmallButton}" Content="RESET + START" Click="Restart_Click"
+                            ToolTip="Return to zero and start immediately"/>
+                    <Button Style="{StaticResource SmallButton}" Content="NEW SESSION" Click="NewSession_Click"
+                            ToolTip="Reset the clock and start a new session (the lap list is kept)"/>
+                    <Button x:Name="ModeButton" Style="{StaticResource SmallButton}" Content="COUNTDOWN MODE"
+                            Click="Mode_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Visual alert shown when the countdown reaches zero -->
+            <Border x:Name="AlertOverlay" Background="#E53935" CornerRadius="10" Opacity="0"
+                    IsHitTestVisible="False" Margin="-8,-4,-8,-8">
+                <TextBlock Text="TIME'S UP" Foreground="White" FontSize="30" FontWeight="Bold"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

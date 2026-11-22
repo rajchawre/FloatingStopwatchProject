@@ -1,0 +1,73 @@
+<Window x:Class="FloatingStopwatch.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Floating Stopwatch settings" Width="440" Height="660" ResizeMode="NoResize"
+        Topmost="True" WindowStartupLocation="CenterScreen">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+
+            <GroupBox Header="Size and look" Padding="10">
+                <StackPanel>
+                    <TextBlock Text="Window size"/>
+                    <DockPanel Margin="0,2,0,8">
+                        <TextBlock x:Name="ScaleLabel" DockPanel.Dock="Right" Width="48" TextAlignment="Right"/>
+                        <Slider x:Name="SliderScale" Minimum="0.5" Maximum="3" ValueChanged="Slider_Changed"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Timer font size"/>
+                    <DockPanel Margin="0,2,0,8">
+                        <TextBlock x:Name="FontLabel" DockPanel.Dock="Right" Width="48" TextAlignment="Right"/>
+                        <Slider x:Name="SliderFont" Minimum="20" Maximum="160" ValueChanged="Slider_Changed"/>
+                    </DockPanel>
+
+                    <TextBlock Text="Timer text colour (hex, e.g. #FFFFFF)"/>
+                    <TextBox x:Name="TextColorBox" Margin="0,2,0,4" TextChanged="ColorBox_TextChanged"/>
+                    <StackPanel x:Name="TextSwatches" Orientation="Horizontal" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Background colour (hex)"/>
+                    <TextBox x:Name="BgColorBox" Margin="0,2,0,4" TextChanged="ColorBox_TextChanged"/>
+                    <StackPanel x:Name="BgSwatches" Orientation="Horizontal" Margin="0,0,0,8"/>
+
+                    <TextBlock Text="Background opacity (low = see-through)"/>
+                    <DockPanel Margin="0,2,0,0">
+                        <TextBlock x:Name="OpacityLabel" DockPanel.Dock="Right" Width="48" TextAlignment="Right"/>
+                        <Slider x:Name="SliderOpacity" Minimum="0.05" Maximum="1" ValueChanged="Slider_Changed"/>
+                    </DockPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Behaviour" Padding="10" Margin="0,10,0,0">
+                <StackPanel>
+                    <CheckBox x:Name="ChkTop" Content="Always on top (also over full-screen slideshows)" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkButtons" Content="Show control buttons" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkCompact" Content="Compact mode (timer only)" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkLock" Content="Lock position (disable dragging)" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkHotkeys" Content="Global hotkeys: Ctrl+Alt+Space, L, R, H" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkFocus" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed">
+                        <TextBlock TextWrapping="Wrap" Width="330"
+                                   Text="Take keyboard focus when clicked (enables plain Space / L / R / Esc, but PowerPoint loses focus until you click the slide)"/>
+                    </CheckBox>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Sounds" Padding="10" Margin="0,10,0,0">
+                <StackPanel>
+                    <CheckBox x:Name="ChkSounds" Content="Sounds enabled (untick to silence everything)" Margin="0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkSoundStartStop" Content="Sound when starting / stopping" Margin="18,2,0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                    <CheckBox x:Name="ChkSoundEnd" Content="Sound when the countdown reaches zero" Margin="18,2,0,2" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Countdown length" Padding="10" Margin="0,10,0,10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBox x:Name="MinBox" Width="50" TextChanged="Countdown_TextChanged"/>
+                    <TextBlock Text="min" Margin="6,0,16,0" VerticalAlignment="Center"/>
+                    <TextBox x:Name="SecBox" Width="50" TextChanged="Countdown_TextChanged"/>
+                    <TextBlock Text="sec" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </GroupBox>
+
+            <Button Content="Close" HorizontalAlignment="Right" Padding="18,5" Click="Close_Click"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>
